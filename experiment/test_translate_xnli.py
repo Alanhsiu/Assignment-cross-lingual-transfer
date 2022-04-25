@@ -29,15 +29,11 @@ labels = np.array(labels)
 premises = np.array(premises)
 hypotheses = np.array(hypotheses)
 
-# languages = ['Arabic', 'Bulgarian', 'German', 'Greek', 'English', 'Spanish', 'French', 'Hindi', 'Russian', \
-#             'Swahili', 'Thai', 'Turkish', 'Urdu', 'Vietnamese', 'Chinese']
-# codes = np.unique(lang_codes)
-
 languages = ['English', 'French', 'Russian', 'Chinese', 'Hindi', 'Urdu', 'Bulgarian', 'Vietnamese']
 codes = ['en', 'fr', 'ru', 'zh', 'hi', 'ur', 'bg', 'vt']
 code_to_lang = dict(zip(np.unique(lang_codes), languages))
 
-with open('../data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
+with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
 
     for code in tqdm(codes):
         if code == 'en':
