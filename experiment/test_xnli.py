@@ -34,7 +34,7 @@ lang = list()
 label = list()
 premise = list()
 hypothesis = list()
-for i, line in enumerate(open('../data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
+for i, line in enumerate(open('data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
     if i == 0:
         continue
     line = line.split('\t')
@@ -49,17 +49,10 @@ label = np.array(label)
 premise = np.array(premise)
 hypothesis = np.array(hypothesis)
 
-# for lang in ['en', 'zh', 'hi']:
-#     for idx, example in enumerate(data_samples[lang]):
-#         predict = COPA_eval(example["premise"], example["choice1"], example["choice2"])
-#         print(f'{lang}-{idx}', predict, example['label'])
-
 en_ind = np.where(lang == 'en')
 en_label = label[en_ind]
 en_premise = premise[en_ind]
 en_hypothesis = hypothesis[en_ind]
-
-import pdb; pdb.set_trace()
 
 acc = 0.0
 for i in tqdm(range(len(en_label))):
@@ -69,5 +62,3 @@ for i in tqdm(range(len(en_label))):
 
 print('accuracy of zero-shot on en: ', acc/float(len(en_label)))
 
-
-# 你的東西我一口都不會吃！我王境澤就是餓死，死外邊，從這裡跳下去，也不會吃你們一點東西！
