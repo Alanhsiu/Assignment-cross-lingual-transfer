@@ -9,3 +9,4 @@ pip install --upgrade numpy
 
 wget https://dl.fbaipublicfiles.com/fairseq/models/xglm/xglm.7.5B.tar.gz
 tar zxvf xglm.7.5B.tar.gz
+
