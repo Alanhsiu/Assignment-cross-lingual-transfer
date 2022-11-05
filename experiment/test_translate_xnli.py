@@ -14,7 +14,7 @@ lang_codes = list()
 labels = list()
 premises = list()
 hypotheses = list()
-for i, line in enumerate(open('../data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
+for i, line in enumerate(open('data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
     if i == 0:
         continue
     line = line.split('\t')
@@ -29,8 +29,8 @@ labels = np.array(labels)
 premises = np.array(premises)
 hypotheses = np.array(hypotheses)
 
-languages = ['English', 'French', 'Russian', 'Chinese', 'Hindi', 'Urdu', 'Bulgarian', 'Vietnamese']
-codes = ['en', 'fr', 'ru', 'zh', 'hi', 'ur', 'bg', 'vt']
+languages = ['Arabic', 'Bulgarian', 'German', 'Greek', 'English', 'Spanish', 'French', 'Hindi', 'Russian', 'Swahili', 'Thai', 'Turkish', 'Urdu', 'Vietnamese', 'Chinese']
+codes = ['en', 'fr', 'ru', 'zh', 'hi', 'ur', 'bg', 'vi']
 code_to_lang = dict(zip(np.unique(lang_codes), languages))
 
 with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
@@ -43,13 +43,13 @@ with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
         current_premises = premises[ind]
         current_hypotheses = hypotheses[ind]
         current_labels = labels[ind]
-        
+
         premise_examples = list()
         hypotheses_examples = list()
         min_len_b_premises = list()
         min_len_b_hypotheses = list()
-        
-        prompt = 'Translate from {} to English: \n'.format(code_to_lang[code])
+
+        prompt = 'translate from {} to english: \n'.format(code_to_lang[code])
 
         for premise, hypothesis, label in zip(current_premises, current_hypotheses, current_labels):
             example = prompt + premise + '=>'
@@ -72,12 +72,12 @@ with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
             hypotheses_examples.append(example)
             min_len_b_hypotheses.append(max_len_b)
 
-        
+
         min_len_b = np.max(min_len_b_premises)
         pred_premises = lm.translate(premise_examples, beam=1, max_len_a=1.0,  max_len_b=max_len_b, replace_newlines_with_eos=True)
         min_len_b = np.max(min_len_b_hypotheses)
         pred_hypotheses = lm.translate(hypotheses_examples, beam=1, max_len_a=1.0,  max_len_b=max_len_b, replace_newlines_with_eos=True)
-        
+
         for pred_premise, pred_hypothesis, label in zip(pred_premises, pred_hypotheses, current_labels):
             pred_premise = pred_premise.split('=>')[-1]
             pred_hypothesis = pred_hypothesis.split('=>')[-1]
