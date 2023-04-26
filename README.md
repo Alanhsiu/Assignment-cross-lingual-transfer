@@ -5,8 +5,6 @@
 - Run the script `experiment/req.sh`.
 
 ## Script Descriptions
-- `experiment/test_translate_xnli.py`: Zero-shot translation from other languages to English. 
-  - TODO: Modify the script to perform k-shot translation with k > 0 to improve the translation quality. Examples for k-shot translation can be drawn from the dev set of XNLI since the other languages’ sentences are translations of the English ones. One can also use the dev set of the Flores-101 benchmark by MetaAI (https://dl.fbaipublicfiles.com/flores101/dataset/flores101_dataset.tar.gz).
 - `experiment/test_translate_xnli.py`: Zero-shot translation from other languages to English.
   - TODO: Modify the script to perform k-shot translation with k > 0 to improve the translation quality. Examples for k-shot translation can be drawn from the dev set of XNLI since the other languages’ sentences are translations of the English ones. One can also use the dev set of the Flores-101 benchmark by MetaAI (https://dl.fbaipublicfiles.com/flores101/dataset/flores101_dataset.tar.gz).
 - `experiment/test_xnli.py`: Zero-shot in-context learning on the English testing set of XNLI.
