@@ -1,13 +1,8 @@
-# Assignment-cross-lingual-transfer
-
 # Assignment: Cross-lingual Transfer
 
 ## Prerequisites
 - Navigate to the file `fairseq/fairseq/modules/layer_norm.py` and comment out lines 31 and 32.
 - Run the script `experiment/req.sh`.
-	```bash=
-	bash experiment/req.sh
-	```
 
 ## Script Descriptions
 - `experiment/test_translate_xnli.py`: Zero-shot translation from other languages to English. 
