@@ -7,7 +7,7 @@ import os
 output_dir = 'output'
 model_dir = '7.5B'
 test_lang = 'en'
-output_name = f"zero_shot_{test_lang}.txt"
+output_name = "zero_shot_{}.txt".format(test_lang)
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -84,8 +84,8 @@ for i in tqdm(range(len(test_label))):
         acc += 1.0
 
 
-print(f'accuracy of zero-shot on {test_lang}: ', acc/float(len(test_label)))
-output_file.write(f'accuracy of zero-shot on {test_lang}: '+str(acc/float(len(test_label))))
+print('accuracy of zero-shot on {}: '.format(test_lang), acc/float(len(test_label)))
+output_file.write('accuracy of zero-shot on {}: '.format(test_lang)+str(acc/float(len(test_label))))
 output_file.write('\n')
 output_file.close()
 
