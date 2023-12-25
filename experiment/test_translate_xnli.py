@@ -8,6 +8,7 @@ lm = TransformerLanguageModel.from_pretrained(model_dir, bpe='sentencepiece')
 lm = lm.eval()
 lm = lm.half()
 lm = lm.cuda()
+print ("model loaded")
 
 # load xnli
 lang_codes = list()
@@ -22,16 +23,18 @@ for i, line in enumerate(open('data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
     labels.append(line[1])
     premises.append(line[6])
     hypotheses.append(line[7])
-
+print ("data loaded")
 
 lang_codes = np.array(lang_codes)
 labels = np.array(labels)
 premises = np.array(premises)
 hypotheses = np.array(hypotheses)
+print ("data converted to numpy")
 
 languages = ['Arabic', 'Bulgarian', 'German', 'Greek', 'English', 'Spanish', 'French', 'Hindi', 'Russian', 'Swahili', 'Thai', 'Turkish', 'Urdu', 'Vietnamese', 'Chinese']
 codes = ['en', 'fr', 'ru', 'zh', 'hi', 'ur', 'bg', 'vi']
 code_to_lang = dict(zip(np.unique(lang_codes), languages))
+print ("languages loaded")
 
 with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
 
@@ -50,6 +53,7 @@ with open('data-bin/XNLI-1.0/others_to_en.tsv', 'w') as f:
         min_len_b_hypotheses = list()
 
         prompt = 'translate from {} to english: \n'.format(code_to_lang[code])
+        print (prompt)
 
         for premise, hypothesis, label in zip(current_premises, current_hypotheses, current_labels):
             example = prompt + premise + '=>'

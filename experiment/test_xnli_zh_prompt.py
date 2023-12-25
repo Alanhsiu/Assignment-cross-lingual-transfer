@@ -14,7 +14,7 @@ output_dir = 'output'
 model_dir = '7.5B'
 # test_lang = 'en'
 test_lang = sys.argv[1]
-output_name = "zero_shot_{}.txt".format(test_lang)
+output_name = "zero_shot_{}_zh_prompt.txt".format(test_lang)
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -38,9 +38,9 @@ def get_logprobs(prompt, verbose=False):
 pred_label = np.array(['entailment', 'contradiction', 'neutral'])
 def XNLI_eval(premise, hypothesis, verbose=False):
     if verbose:
-        prompt1, lprob1 = get_logprobs(premise + " , right? Yes, " + hypothesis, verbose)
-        prompt2, lprob2 = get_logprobs(premise + " , right? No, " + hypothesis, verbose)
-        prompt3, lprob3 = get_logprobs(premise + " , right? Also, " + hypothesis, verbose)
+        prompt1, lprob1 = get_logprobs(premise + " ，是吗？是的， " + hypothesis, verbose)
+        prompt2, lprob2 = get_logprobs(premise + " ，是吗？不是的， " + hypothesis, verbose)
+        prompt3, lprob3 = get_logprobs(premise + " ，是吗？此外， " + hypothesis, verbose)
         lprob1 = lprob1.sum().cpu()
         lprob2 = lprob2.sum().cpu()
         lprob3 = lprob3.sum().cpu()
@@ -48,15 +48,15 @@ def XNLI_eval(premise, hypothesis, verbose=False):
         output_file.write(prompt2+"\nScore: "+str(lprob2.item())+"\n")
         output_file.write(prompt3+"\nScore: "+str(lprob3.item())+"\n\n")
     else:
-        lprob1 = get_logprobs(premise + " , right? Yes, " + hypothesis, verbose).sum().cpu()
-        lprob2 = get_logprobs(premise + " , right? No, " + hypothesis, verbose).sum().cpu()
-        lprob3 = get_logprobs(premise + " , right? Also, " + hypothesis, verbose).sum().cpu()
+        lprob1 = get_logprobs(premise + "，是吗？是的，" + hypothesis, verbose).sum().cpu()
+        lprob2 = get_logprobs(premise + " ，是吗？不是的， " + hypothesis, verbose).sum().cpu()
+        lprob3 = get_logprobs(premise + " ，是吗？此外， " + hypothesis, verbose).sum().cpu()
     return pred_label[np.argmax([lprob1, lprob2, lprob3])]
     
 def val_all(premise, hypothesis):
-    lprob1 = get_logprobs(premise + " , right? Yes, " + hypothesis).sum().cpu()
-    lprob2 = get_logprobs(premise + " , right? No, " + hypothesis).sum().cpu()
-    lprob3 = get_logprobs(premise + " , right? Also, " + hypothesis).sum().cpu()
+    lprob1 = get_logprobs(premise + "，是吗？是的，" + hypothesis).sum().cpu()
+    lprob2 = get_logprobs(premise + " ，是吗？不是的， " + hypothesis).sum().cpu()
+    lprob3 = get_logprobs(premise + " ，是吗？此外， " + hypothesis).sum().cpu()
     return [lprob1, lprob2, lprob3]
 
 # load xnli

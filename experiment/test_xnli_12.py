@@ -2,6 +2,8 @@ from fairseq.models.transformer_lm import TransformerLanguageModel
 import numpy as np
 from tqdm import tqdm
 import os
+import csv
+import random
 import sys
 
 if len(sys.argv) != 2:
@@ -14,7 +16,7 @@ output_dir = 'output'
 model_dir = '7.5B'
 # test_lang = 'en'
 test_lang = sys.argv[1]
-output_name = "zero_shot_{}.txt".format(test_lang)
+output_name = "twelve_shot_{}.txt".format(test_lang)
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -26,6 +28,28 @@ lm = lm.eval()
 lm = lm.half()
 lm = lm.cuda()
 
+# 12-shot
+entailment_examples = []
+neutral_examples = []
+contradiction_examples = []
+
+# target_language = 'en'
+target_language = test_lang
+
+with open('data-bin/XNLI-1.0/xnli.dev.tsv', 'r', encoding='utf-8') as file:
+    reader = csv.DictReader(file, delimiter='\t')
+    for row in reader:
+        if row['language'] == target_language:
+            example = (row['sentence1'], row['sentence2'], row['gold_label'])
+            if row['gold_label'] == 'entailment':
+                entailment_examples.append(example)
+            elif row['gold_label'] == 'neutral':
+                neutral_examples.append(example)
+            elif row['gold_label'] == 'contradiction':
+                contradiction_examples.append(example)
+
+
+
 def get_logprobs(prompt, verbose=False):
     import re
     prompt = re.sub('\n+' , '\n', prompt)  # collapse repeated newlines, which indicate separate documents
@@ -36,11 +60,21 @@ def get_logprobs(prompt, verbose=False):
 
 # to 
 pred_label = np.array(['entailment', 'contradiction', 'neutral'])
+
 def XNLI_eval(premise, hypothesis, verbose=False):
+    # random sample 4 examples from each label
+    examples = random.sample(entailment_examples, 4) + random.sample(neutral_examples, 4) + random.sample(contradiction_examples, 4)
+    
+    example_text = "\n".join(["{} , right? {} {}".format(ex_premise, "Yes" if ex_label == 'entailment' else "No" if ex_label == 'contradiction' else "Also", ex_hypothesis) for ex_premise, ex_hypothesis, ex_label in examples])
+
+    prompt1 = example_text + "\n" + premise + " , right? Yes, " + hypothesis
+    prompt2 = example_text + "\n" + premise + " , right? No, " + hypothesis
+    prompt3 = example_text + "\n" + premise + " , right? Also, " + hypothesis
+
     if verbose:
-        prompt1, lprob1 = get_logprobs(premise + " , right? Yes, " + hypothesis, verbose)
-        prompt2, lprob2 = get_logprobs(premise + " , right? No, " + hypothesis, verbose)
-        prompt3, lprob3 = get_logprobs(premise + " , right? Also, " + hypothesis, verbose)
+        prompt1, lprob1 = get_logprobs(prompt1, verbose)
+        prompt2, lprob2 = get_logprobs(prompt2, verbose)
+        prompt3, lprob3 = get_logprobs(prompt3, verbose)
         lprob1 = lprob1.sum().cpu()
         lprob2 = lprob2.sum().cpu()
         lprob3 = lprob3.sum().cpu()
@@ -48,9 +82,9 @@ def XNLI_eval(premise, hypothesis, verbose=False):
         output_file.write(prompt2+"\nScore: "+str(lprob2.item())+"\n")
         output_file.write(prompt3+"\nScore: "+str(lprob3.item())+"\n\n")
     else:
-        lprob1 = get_logprobs(premise + " , right? Yes, " + hypothesis, verbose).sum().cpu()
-        lprob2 = get_logprobs(premise + " , right? No, " + hypothesis, verbose).sum().cpu()
-        lprob3 = get_logprobs(premise + " , right? Also, " + hypothesis, verbose).sum().cpu()
+        lprob1 = get_logprobs(prompt1, verbose).sum().cpu()
+        lprob2 = get_logprobs(prompt2, verbose).sum().cpu()
+        lprob3 = get_logprobs(prompt3, verbose).sum().cpu()
     return pred_label[np.argmax([lprob1, lprob2, lprob3])]
     
 def val_all(premise, hypothesis):
@@ -65,7 +99,7 @@ label = list()
 premise = list()
 hypothesis = list()
 for i, line in enumerate(open(input_file).readlines()): # change xnli.test.tsv to others_to_en.tsv
-# for i, line in enumerate(open('data-bin/XNLI-1.0/xnli.test.tsv').readlines()): # change xnli.test.tsv to others_to_en.tsv
+# for i, line in enumerate(open('data-bin/XNLI-1.0/xnli.test.tsv').readlines()):
     if i == 0:
         continue
     line = line.split('\t')
@@ -92,8 +126,8 @@ for i in tqdm(range(len(test_label))):
         acc += 1.0
 
 
-print('accuracy of zero-shot on {}: '.format(test_lang), acc/float(len(test_label)))
-output_file.write('accuracy of zero-shot on {}: '.format(test_lang)+str(acc/float(len(test_label))))
+print('accuracy of 12-shot on {}: '.format(test_lang), acc/float(len(test_label)))
+output_file.write('accuracy of 12-shot on {}: '.format(test_lang)+str(acc/float(len(test_label))))
 output_file.write('\n')
 output_file.close()
 

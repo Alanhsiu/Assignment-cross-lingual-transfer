@@ -8,13 +8,13 @@ if len(sys.argv) != 2:
     print("Usage: python ./experiment/test_xnli.py [language]")
     sys.exit(1)
 
-input_file = os.path.join('data-bin/XNLI-1.0', 'xnli.test.tsv') # 'xnli.test.tsv' or 'others_to_en.tsv'
+input_file = os.path.join('data-bin/XNLI-1.0', 'others_to_en_3.tsv') # 'xnli.test.tsv' or 'others_to_en.tsv'
 
 output_dir = 'output'
 model_dir = '7.5B'
 # test_lang = 'en'
 test_lang = sys.argv[1]
-output_name = "zero_shot_{}.txt".format(test_lang)
+output_name = "zero_shot_{}_translated_three_shot.txt".format(test_lang)
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -34,7 +34,6 @@ def get_logprobs(prompt, verbose=False):
     return lm.score(prompt, replace_newlines_with_eos=True)['positional_scores']
     
 
-# to 
 pred_label = np.array(['entailment', 'contradiction', 'neutral'])
 def XNLI_eval(premise, hypothesis, verbose=False):
     if verbose:
@@ -71,8 +70,10 @@ for i, line in enumerate(open(input_file).readlines()): # change xnli.test.tsv t
     line = line.split('\t')
     lang.append(line[0])
     label.append(line[1])
-    premise.append(line[6])
-    hypothesis.append(line[7])
+    premise.append(line[2])
+    hypothesis.append(line[3])
+    # premise.append(line[6])
+    # hypothesis.append(line[7])
 
 
 lang = np.array(lang)
